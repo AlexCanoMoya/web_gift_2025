@@ -137,10 +137,10 @@ export function Board() {
 
     if (error) {
       console.error(error);
-      alert("No se pudo guardar. Revisa consola.");
+      alert(`Error al guardar: ${error.message}`);
       return;
     }
-
+    
     setOpenNew(false);
   }
 
