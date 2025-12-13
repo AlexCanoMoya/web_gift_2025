@@ -12,6 +12,7 @@ import { Plus, Search, Trash2, Pencil, CheckCircle2, CalendarClock } from "lucid
 
 const boardTitle = process.env.NEXT_PUBLIC_BOARD_TITLE ?? "Plans Board";
 const boardSlug = process.env.NEXT_PUBLIC_BOARD_SLUG ?? "default-board";
+const bgImage = process.env.NEXT_PUBLIC_BG_IMAGE ?? "";
 
 function formatCost(n: number | null) {
   if (n === null || n === undefined) return "—";
