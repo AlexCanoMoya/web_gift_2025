@@ -141,6 +141,7 @@ export function Board() {
       return;
     }
     
+    await fetchPlans();
     setOpenNew(false);
   }
 
@@ -172,6 +173,7 @@ export function Board() {
       return;
     }
 
+    await fetchPlans();
     setEdit(null);
   }
 
@@ -184,6 +186,7 @@ export function Board() {
       console.error(error);
       alert("No se pudo eliminar. Revisa consola.");
     }
+    await fetchPlans();
   }
 
   async function quickStatus(p: Plan, s: PlanStatus) {
@@ -196,6 +199,7 @@ export function Board() {
       console.error(error);
       alert("No se pudo cambiar el estado.");
     }
+    await fetchPlans();
   }
 
   const alpha = Number.isFinite(overlayAlpha) ? overlayAlpha : 0.86;
