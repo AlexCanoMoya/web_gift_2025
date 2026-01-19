@@ -27,21 +27,22 @@ export function GiftModal({
 
   const modalTitle = useMemo(() => safeText(title) || "Tu regalo", [title]);
 
-  // Reset al cerrar
   useEffect(() => {
     if (!open) setStep("teaser");
   }, [open]);
 
   async function fireConfetti() {
     try {
-      const confetti = (await import("canvas-confetti")).default;
+      // Tipado robusto: evitamos problemas de default export / tipos
+      const mod: any = await import("canvas-confetti");
+      const confetti: any = mod?.default ?? mod;
 
-      // Dos “rafagas” para un efecto más festivo
       confetti({
         particleCount: 120,
         spread: 70,
         origin: { y: 0.65 },
       });
+
       confetti({
         particleCount: 80,
         spread: 100,
@@ -49,13 +50,12 @@ export function GiftModal({
         scalar: 0.9,
       });
     } catch {
-      // si por lo que sea falla, no rompemos la UX
+      // no-op
     }
   }
 
   async function openTickets() {
     setBusy(true);
-    // micro delay para que se note el cambio de estado
     await new Promise((r) => setTimeout(r, 220));
     setStep("tickets");
     await new Promise((r) => setTimeout(r, 80));
@@ -83,15 +83,11 @@ export function GiftModal({
             <div className="mt-4 grid grid-cols-1 gap-2 text-sm">
               <div className="flex items-center gap-2 rounded-xl bg-white/80 border border-zinc-200 p-3">
                 <Plane className="h-4 w-4 text-zinc-700" />
-                <span className="text-zinc-800">
-                  Abre los tickets cuando quieras.
-                </span>
+                <span className="text-zinc-800">Abre los tickets cuando quieras.</span>
               </div>
               <div className="flex items-center gap-2 rounded-xl bg-white/80 border border-zinc-200 p-3">
                 <Sparkles className="h-4 w-4 text-zinc-700" />
-                <span className="text-zinc-800">
-                  Este “regalo” se queda guardado aquí.
-                </span>
+                <span className="text-zinc-800">Este “regalo” se queda guardado aquí.</span>
               </div>
             </div>
           </div>
@@ -107,13 +103,9 @@ export function GiftModal({
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="text-sm text-zinc-600">
-            Aquí están. Cuando quieras, lo hacemos real.
-          </div>
+          <div className="text-sm text-zinc-600">Aquí están. Cuando quieras, lo hacemos real.</div>
 
-          {/* Contenedor estilo “tarjeta” */}
           <div className="rounded-2xl border border-zinc-200 overflow-hidden bg-white shadow-sm">
-            {/* Imagen horizontal: mejor mostrarla completa a lo ancho */}
             <img
               src={imagePath}
               alt="Tickets de avión"
