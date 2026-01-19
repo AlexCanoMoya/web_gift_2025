@@ -73,9 +73,9 @@ export function GiftModal({
                 <Gift className="h-5 w-5" />
               </div>
               <div className="space-y-1">
-                <div className="text-base font-semibold">Hay un viaje esperándote</div>
+                <div className="text-base font-semibold">Hay un regalo esperándote</div>
                 <div className="text-sm text-zinc-600">
-                  No hace falta fecha exacta. Solo una idea bonita para el futuro.
+                  Te quiero.
                 </div>
               </div>
             </div>
@@ -83,11 +83,11 @@ export function GiftModal({
             <div className="mt-4 grid grid-cols-1 gap-2 text-sm">
               <div className="flex items-center gap-2 rounded-xl bg-white/80 border border-zinc-200 p-3">
                 <Plane className="h-4 w-4 text-zinc-700" />
-                <span className="text-zinc-800">Abre los tickets cuando quieras.</span>
+                <span className="text-zinc-800">Felices 38 mi amoL.</span>
               </div>
               <div className="flex items-center gap-2 rounded-xl bg-white/80 border border-zinc-200 p-3">
                 <Sparkles className="h-4 w-4 text-zinc-700" />
-                <span className="text-zinc-800">Este “regalo” se queda guardado aquí.</span>
+                <span className="text-zinc-800">Este regalo se queda guardado aquí.</span>
               </div>
             </div>
           </div>
@@ -97,7 +97,7 @@ export function GiftModal({
               Cerrar
             </Button>
             <Button onClick={openTickets} disabled={busy}>
-              {busy ? "Abriendo..." : "Abrir tickets"}
+              {busy ? "Abriendo..." : "Abrir regalo"}
             </Button>
           </div>
         </div>
