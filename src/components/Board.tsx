@@ -228,7 +228,7 @@ export function Board() {
           <div className="flex items-center gap-2">
             {giftImage ? (
               <Button variant="secondary" onClick={() => setOpenGift(true)}>
-                {giftLabel || "Regalo"}
+                {giftLabel || "REGALO 38 CUMPLEAÑOS"}
               </Button>
             ) : null}
 
