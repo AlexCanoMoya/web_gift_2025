@@ -83,11 +83,11 @@ export function GiftModal({
             <div className="mt-4 grid grid-cols-1 gap-2 text-sm">
               <div className="flex items-center gap-2 rounded-xl bg-white/80 border border-zinc-200 p-3">
                 <Plane className="h-4 w-4 text-zinc-700" />
-                <span className="text-zinc-800">Felices 38 mi amoL.</span>
+                <span className="text-zinc-800">Por muchos de estos más juntos.</span>
               </div>
               <div className="flex items-center gap-2 rounded-xl bg-white/80 border border-zinc-200 p-3">
                 <Sparkles className="h-4 w-4 text-zinc-700" />
-                <span className="text-zinc-800">Este regalo se queda guardado aquí.</span>
+                <span className="text-zinc-800">Este regalo se queda guardado aquí. Felices 38 mi amoL.</span>
               </div>
             </div>
           </div>
