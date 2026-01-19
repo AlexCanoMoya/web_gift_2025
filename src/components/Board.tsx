@@ -20,6 +20,9 @@ import {
 const boardTitle = process.env.NEXT_PUBLIC_BOARD_TITLE ?? "Plans Board";
 const boardSlug = process.env.NEXT_PUBLIC_BOARD_SLUG ?? "default-board";
 
+const giftLabel = process.env.NEXT_PUBLIC_GIFT_LABEL ?? "";
+const giftImage = process.env.NEXT_PUBLIC_GIFT_IMAGE ?? "";
+
 // Imagen de fondo por deploy (ej: /bg-itxi.jpg o /bg-canos.jpg)
 const bgImage = process.env.NEXT_PUBLIC_BG_IMAGE ?? "";
 
@@ -57,6 +60,7 @@ export function Board() {
   const [openNew, setOpenNew] = useState(false);
   const [edit, setEdit] = useState<Plan | null>(null);
   const [busy, setBusy] = useState(false);
+  const [openGift, setOpenGift] = useState(false);
 
   async function fetchPlans() {
     setLoading(true);
@@ -230,11 +234,18 @@ export function Board() {
           </div>
 
           <div className="flex items-center gap-2">
+            {giftImage ? (
+              <Button variant="secondary" onClick={() => setOpenGift(true)}>
+                {giftLabel || "Regalo"}
+              </Button>
+            ) : null}
+          
             <Button onClick={() => setOpenNew(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Añadir plan
             </Button>
           </div>
+
         </header>
 
         <section className="mt-6 rounded-2xl border border-zinc-200/70 bg-white/80 backdrop-blur-md shadow-sm">
@@ -383,6 +394,38 @@ export function Board() {
           onSubmit={updatePlan}
         />
       </Modal>
+
+      <Modal open={openGift} title="Tu regalo" onClose={() => setOpenGift(false)}>
+        <div className="space-y-3">
+          <div className="text-sm text-zinc-600">
+            Abre los tickets cuando quieras.
+          </div>
+      
+          <div className="rounded-2xl border border-zinc-200 overflow-hidden bg-white">
+            {/* img normal (simple, robusto) */}
+            <img
+              src={giftImage}
+              alt="Tickets de avión"
+              className="w-full h-auto block"
+              loading="eager"
+            />
+          </div>
+      
+          <div className="flex justify-end gap-2">
+            <a
+              href={giftImage}
+              download
+              className="inline-flex items-center justify-center rounded-xl font-medium transition h-10 px-4 text-sm bg-zinc-900 text-white hover:bg-zinc-800"
+            >
+              Descargar
+            </a>
+            <Button variant="secondary" onClick={() => setOpenGift(false)}>
+              Cerrar
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 }
