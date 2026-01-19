@@ -8,29 +8,19 @@ import { Input } from "./Input";
 import { Badge } from "./Badge";
 import { Modal } from "./Modal";
 import { PlanForm, PlanFormValues } from "./PlanForm";
-import {
-  Plus,
-  Search,
-  Trash2,
-  Pencil,
-  CheckCircle2,
-  CalendarClock,
-} from "lucide-react";
+import { GiftModal } from "./GiftModal";
+import { Plus, Search, Trash2, Pencil, CheckCircle2, CalendarClock } from "lucide-react";
 
 const boardTitle = process.env.NEXT_PUBLIC_BOARD_TITLE ?? "Plans Board";
 const boardSlug = process.env.NEXT_PUBLIC_BOARD_SLUG ?? "default-board";
 
 const giftLabel = process.env.NEXT_PUBLIC_GIFT_LABEL ?? "";
 const giftImage = process.env.NEXT_PUBLIC_GIFT_IMAGE ?? "";
+const giftTitle = process.env.NEXT_PUBLIC_GIFT_TITLE ?? "Tu regalo";
 
-// Imagen de fondo por deploy (ej: /bg-itxi.jpg o /bg-canos.jpg)
+// Fondo por deploy (ej: /bg-itxi.jpg o /bg-canos.jpg)
 const bgImage = process.env.NEXT_PUBLIC_BG_IMAGE ?? "";
-
-// (Opcional) para ajustar encuadre sin tocar código:
-// ej: "center", "top", "50% 30%", "center 20%"
 const bgPosition = process.env.NEXT_PUBLIC_BG_POSITION ?? "center";
-
-// Overlay (más alto = más blanco, más legibilidad; más bajo = se ve más la foto)
 const overlayAlpha = Number(process.env.NEXT_PUBLIC_BG_OVERLAY ?? "0.86");
 
 function formatCost(n: number | null) {
@@ -55,15 +45,19 @@ function statusLabel(s: PlanStatus) {
 export function Board() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<PlanStatus | "all">("all");
+
   const [openNew, setOpenNew] = useState(false);
   const [edit, setEdit] = useState<Plan | null>(null);
   const [busy, setBusy] = useState(false);
+
   const [openGift, setOpenGift] = useState(false);
 
   async function fetchPlans() {
     setLoading(true);
+
     const { data, error } = await supabase
       .from("plans")
       .select("*")
@@ -76,6 +70,7 @@ export function Board() {
     } else {
       setPlans((data ?? []) as Plan[]);
     }
+
     setLoading(false);
   }
 
@@ -84,14 +79,9 @@ export function Board() {
 
     const channel = supabase
       .channel("plans-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "plans" },
-        () => {
-          // Sencillo y robusto: refetch ante cualquier cambio.
-          fetchPlans();
-        }
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "plans" }, () => {
+        fetchPlans();
+      })
       .subscribe();
 
     return () => {
@@ -123,6 +113,7 @@ export function Board() {
 
   async function createPlan(values: PlanFormValues) {
     setBusy(true);
+
     const est = values.est_cost.trim() ? Number(values.est_cost) : null;
 
     const { error } = await supabase.from("plans").insert({
@@ -144,15 +135,16 @@ export function Board() {
       alert(`Error al guardar: ${error.message}`);
       return;
     }
-    
-    await fetchPlans();
+
     setOpenNew(false);
+    await fetchPlans();
   }
 
   async function updatePlan(values: PlanFormValues) {
     if (!edit) return;
 
     setBusy(true);
+
     const est = values.est_cost.trim() ? Number(values.est_cost) : null;
 
     const { error } = await supabase
@@ -173,12 +165,12 @@ export function Board() {
 
     if (error) {
       console.error(error);
-      alert("No se pudo actualizar. Revisa consola.");
+      alert(`Error al actualizar: ${error.message}`);
       return;
     }
 
-    await fetchPlans();
     setEdit(null);
+    await fetchPlans();
   }
 
   async function removePlan(id: string) {
@@ -188,21 +180,22 @@ export function Board() {
 
     if (error) {
       console.error(error);
-      alert("No se pudo eliminar. Revisa consola.");
+      alert(`Error al eliminar: ${error.message}`);
+      return;
     }
+
     await fetchPlans();
   }
 
   async function quickStatus(p: Plan, s: PlanStatus) {
-    const { error } = await supabase
-      .from("plans")
-      .update({ status: s })
-      .eq("id", p.id);
+    const { error } = await supabase.from("plans").update({ status: s }).eq("id", p.id);
 
     if (error) {
       console.error(error);
-      alert("No se pudo cambiar el estado.");
+      alert(`Error al cambiar estado: ${error.message}`);
+      return;
     }
+
     await fetchPlans();
   }
 
@@ -217,7 +210,6 @@ export function Board() {
           ? {
               backgroundImage: `${overlay}, url(${bgImage})`,
               backgroundPosition: bgPosition,
-              // En desktop queda bonito, en móvil puede ir mal; por eso lo dejamos en "scroll".
               backgroundAttachment: "scroll",
             }
           : undefined
@@ -239,13 +231,12 @@ export function Board() {
                 {giftLabel || "Regalo"}
               </Button>
             ) : null}
-          
+
             <Button onClick={() => setOpenNew(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Añadir plan
             </Button>
           </div>
-
         </header>
 
         <section className="mt-6 rounded-2xl border border-zinc-200/70 bg-white/80 backdrop-blur-md shadow-sm">
@@ -263,11 +254,7 @@ export function Board() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <FilterPill
-                label={`Todos (${counts.all})`}
-                active={status === "all"}
-                onClick={() => setStatus("all")}
-              />
+              <FilterPill label={`Todos (${counts.all})`} active={status === "all"} onClick={() => setStatus("all")} />
               <FilterPill
                 label={`Wishlist (${counts.wishlist})`}
                 active={status === "wishlist"}
@@ -278,11 +265,7 @@ export function Board() {
                 active={status === "planned"}
                 onClick={() => setStatus("planned")}
               />
-              <FilterPill
-                label={`Hecho (${counts.done})`}
-                active={status === "done"}
-                onClick={() => setStatus("done")}
-              />
+              <FilterPill label={`Hecho (${counts.done})`} active={status === "done"} onClick={() => setStatus("done")} />
             </div>
           </div>
 
@@ -303,25 +286,15 @@ export function Board() {
                         <div className="flex flex-wrap items-center gap-2">
                           <h2 className="font-semibold leading-snug">{p.title}</h2>
                           <Badge variant="outline">{statusLabel(p.status)}</Badge>
-                          {p.category ? (
-                            <Badge variant="soft">{p.category}</Badge>
-                          ) : null}
+                          {p.category ? <Badge variant="soft">{p.category}</Badge> : null}
                         </div>
                         {p.description ? (
-                          <p className="text-sm text-zinc-600 whitespace-pre-wrap">
-                            {p.description}
-                          </p>
+                          <p className="text-sm text-zinc-600 whitespace-pre-wrap">{p.description}</p>
                         ) : null}
                       </div>
 
                       <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEdit(p)}
-                          aria-label="Editar"
-                          title="Editar"
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => setEdit(p)} aria-label="Editar" title="Editar">
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
@@ -337,10 +310,7 @@ export function Board() {
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-2 text-xs text-zinc-700">
-                      <Meta
-                        icon={<CalendarClock className="h-4 w-4" />}
-                        text={p.when_text || "Sin fecha"}
-                      />
+                      <Meta icon={<CalendarClock className="h-4 w-4" />} text={p.when_text || "Sin fecha"} />
                       <Meta text={p.location || "Sin ubicación"} />
                       <Meta text={`Presupuesto: ${formatCost(p.est_cost)}`} />
                       <Meta text={`Prioridad: ${p.priority}`} />
@@ -387,45 +357,13 @@ export function Board() {
       </Modal>
 
       <Modal open={!!edit} title="Editar plan" onClose={() => setEdit(null)}>
-        <PlanForm
-          initial={edit ?? undefined}
-          busy={busy}
-          onCancel={() => setEdit(null)}
-          onSubmit={updatePlan}
-        />
+        <PlanForm initial={edit ?? undefined} busy={busy} onCancel={() => setEdit(null)} onSubmit={updatePlan} />
       </Modal>
 
-      <Modal open={openGift} title="Tu regalo" onClose={() => setOpenGift(false)}>
-        <div className="space-y-3">
-          <div className="text-sm text-zinc-600">
-            Abre los tickets cuando quieras.
-          </div>
-      
-          <div className="rounded-2xl border border-zinc-200 overflow-hidden bg-white">
-            {/* img normal (simple, robusto) */}
-            <img
-              src={giftImage}
-              alt="Tickets de avión"
-              className="w-full h-auto block"
-              loading="eager"
-            />
-          </div>
-      
-          <div className="flex justify-end gap-2">
-            <a
-              href={giftImage}
-              download
-              className="inline-flex items-center justify-center rounded-xl font-medium transition h-10 px-4 text-sm bg-zinc-900 text-white hover:bg-zinc-800"
-            >
-              Descargar
-            </a>
-            <Button variant="secondary" onClick={() => setOpenGift(false)}>
-              Cerrar
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
+      {/* WOW Gift modal (teaser + confetti + tickets) */}
+      {giftImage ? (
+        <GiftModal open={openGift} onClose={() => setOpenGift(false)} title={giftTitle} imagePath={giftImage} />
+      ) : null}
     </div>
   );
 }
@@ -444,9 +382,7 @@ function FilterPill({
       onClick={onClick}
       className={[
         "h-9 px-3 rounded-full text-sm border transition",
-        active
-          ? "bg-zinc-900 text-white border-zinc-900"
-          : "bg-white/80 backdrop-blur text-zinc-800 border-zinc-200 hover:bg-zinc-50",
+        active ? "bg-zinc-900 text-white border-zinc-900" : "bg-white/80 backdrop-blur text-zinc-800 border-zinc-200 hover:bg-zinc-50",
       ].join(" ")}
       type="button"
     >
@@ -469,8 +405,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
     <div className="flex flex-col items-center justify-center text-center py-14">
       <div className="text-sm font-medium">Todavía no hay planes</div>
       <div className="mt-1 text-sm text-zinc-600 max-w-md">
-        Crea el primero y úsalo como “tablón de futuro”: viajes, conciertos,
-        escapadas, caprichos.
+        Crea el primero y úsalo como “tablón de futuro”: viajes, conciertos, escapadas, caprichos.
       </div>
       <div className="mt-4">
         <Button onClick={onAdd}>
